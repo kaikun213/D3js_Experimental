@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sweden Map</title>
+
+    <link rel="stylesheet" href="css/swe_style.css">
+    <!-- External sources  -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+  </head>
+  <body>
+
+    <div id="mapid">
+    </div>
+
+    <script type="text/javascript">
+      // create a map and add it to the div "mapid"
+      var map = new L.Map("mapid", {center: [37.8, -96.9], zoom: 3})
+                          // add layer - openstreetmap params are defined in API request
+                          .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
+
+      // create SVG for overlayPane of the map, add zoom-hide so it does look better (ignored when zooming)
+      var svg = d3.select(map.getPanes().overlayPane).append("svg");
+          g = svg.append("g").attr("class", "leaflet-zoom-hide");
+
+      // transform D3 (geo json) point format to Leaflet points
+      var transform = d3.geoTransform({point: projectPoint});
+          path = d3.geoPath().projection(transform);
+
+      // load geo-json data
+      d3.json("data/countries-hires.json", function(error, collection) {
+        if (error) throw error;
+        // when data loaded: enter path objects
+        var feature = g.selectAll("path")
+                        .data(collection.features)
+                        .enter().append("path");
+        // add data attribute "d" the "transform path"
+        feature.attr("d", path);
+
+        // rescale each time the view resets
+        map.on("viewreset", reset);
+
+        reset();
+        // Reposition the SVG to cover the features.
+        function reset() {
+        var bounds = path.bounds(collection),
+            topLeft = bounds[0],
+            bottomRight = bounds[1];
+            svg .attr("width", bottomRight[0] - topLeft[0])
+                .attr("height", bottomRight[1] - topLeft[1])
+                .style("left", topLeft[0] + "px")
+                .style("top", topLeft[1] + "px");
+
+            g.attr("transform", "translate(" + -topLeft[0] + "," + -topLeft[1] + ")");
+        }
+      });
+
+      // transform D3 API to Leaflet (transform points)
+      function projectPoint(x, y) {
+        var point = map.latLngToLayerPoint(new L.LatLng(y,x));
+        this.stream.point(point.x, point.y);
+      }
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,40 @@
+
+/*  svg bar chart elements consist of a rect (bar) with a text (label)
+*/
+
+
+/*.chart rect {             Removed labels not necessary anymore
+  fill: steelblue;
+}
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: end;
+}*/
+
+.successbar {
+  fill: steelblue;
+}
+
+.failedbar {
+  fill: red;
+}
+
+/* style of the axis
+   path = consists of multiple ticks and displays the domain
+   ticks = consists of text and line */
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}

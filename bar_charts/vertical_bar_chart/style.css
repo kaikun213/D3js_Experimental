@@ -1,0 +1,29 @@
+
+/*  svg bar chart elements consist of a rect (bar) with a text (label)
+*/
+
+
+.chart rect {
+  fill: steelblue;
+}
+
+.chart r {
+  fill: steelblue;
+}
+/* style of the axis
+   path = consists of multiple ticks and displays the domain
+   ticks = consists of text and line */
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
