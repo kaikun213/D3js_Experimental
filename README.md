@@ -3,5 +3,5 @@
 Contents
 
 * Bar charts using d3js
-* Bar charts angular using ngx-charts (<a href="github.com/kaikun213/AngularTuT"> other repo </a>)
+* Bar charts angular using ngx-charts (<a href="https://github.com/kaikun213/AngularioTuT"> other repo </a>)
 * Leaflet with d3 overlay map
