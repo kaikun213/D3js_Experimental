@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sweden map in d3</title>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+
+    <link rel="stylesheet" href="css/swe_style.css">
+  </head>
+  <body>
+    <div id="map" style="border:1px solid black;width:960px; height:500;">
+
+    </div>
+    <button id="hideMap">hide map</button>
+    <button id="showMap">show map</button>
+
+    <script type="text/javascript">
+      var width = 960,
+          height = 500;
+
+      var municipality;
+
+      var margin = {top: 20, right: 10, bottom: 20, left: 10};
+          width = 960 - margin.left - margin.right,
+          height = 500 - margin.top - margin.bottom;
+
+      var svg = d3.select('#map').append('svg')
+          .attr('width', width + margin.left + margin.right)
+          .attr('height', height + margin.top + margin.bottom)
+          .attr('visibility', 'visible');
+
+      var g = svg.append('g')
+          .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+      // unrelated buttons show/hidden
+      var hideBtn = document.querySelector('#hideMap'),
+          showBtn = document.querySelector('#showMap')
+
+      hideBtn.onclick = function(){svg.attr("visibility","hidden");};
+      showBtn.onclick = function(){svg.attr("visibility","visible");};
+
+      // load data from source
+      var url = "https://raw.githubusercontent.com/deldersveld/topojson/master/countries/sweden/sweden-municipalities.json";
+
+      d3.json(url, function(error, data) {
+          // the conversion is dependent on the data! E.g. objectCollection here is referenced with SWE_adm2
+          var municipalities = topojson.feature(data, data.objects.SWE_adm2)
+
+          console.log("topojson", data);
+
+          var projection = d3.geoMercator()
+              // returns projection for boundary box ([0,0] = leftTop, [width, height] = bottom right)
+              .fitSize([width, height], municipalities);
+
+          var path = d3.geoPath()
+              .projection(projection);
+
+          var feature = g.attr('id', 'municipalities').selectAll("path")
+                            .data(municipalities.features)
+                            .enter().append('path')
+                            .attr('id', function(d) {return d.id;})
+                            .attr('d', path)
+                            .on("click", municipality_clicked);
+
+          g.call(d3.zoom().on("zoom", function() {
+            svg.attr("transform", d3.event.transform)
+          }));
+
+          console.log(svg);
+      });
+
+      // calculate zoom for clicked country
+      function get_xyz(d) {
+        var bounds = path.bounds(d);
+        var w_scale = (bounds[1][0] - bounds[0][0]) / width;
+        var h_scale = (bounds[1][1] - bounds[0][1]) / height;
+        var z = .96 / Math.max(w_scale, h_scale);
+        var x = (bounds[1][0] + bounds[0][0]) / 2;
+        var y = (bounds[1][1] + bounds[0][1]) / 2 + (height / z / 6);
+        return [x, y, z];
+      }
+
+      function municipality_clicked(d){
+        console.log(d)
+        console.log("id: " + d.properties.ID_2)
+        // if (municipality) {
+        //   g.selectAll('#'+municipality.id).style('fill', "red");
+        // }
+        //
+        // if (d && municipality !== d){
+        //   var xyz = get_xyz(d);
+        //   municipality = d;
+        // }
+      }
+
+
+      function zoomed() {
+        projection.translate(d3.event.translate).scale(d3.event.scale);
+        g.selectAll("path").attr("d", path);
+      }
+
+
+
+
+    </script>
+
+  </body>
+</html>
